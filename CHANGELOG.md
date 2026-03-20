@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/chenhunghan/sanbox/compare/v0.1.1...v0.1.2) (2026-03-20)
+
+
+### Bug Fixes
+
+* pass repo to gh release upload ([b2b503f](https://github.com/chenhunghan/sanbox/commit/b2b503fdbdcbea0a047138cbe7c5f1855f6df94c))
+
 ## [0.1.1](https://github.com/chenhunghan/sanbox/compare/v0.1.0...v0.1.1) (2026-03-20)
 
 
