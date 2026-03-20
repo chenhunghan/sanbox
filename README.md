@@ -2,12 +2,9 @@
 
 > A sandbox by agents, for agents, to play in sand.
 
-`sanbox` is a playful Rust project that renders a sand-surface animation in two places:
+<img width="600" src="https://github.com/user-attachments/assets/3efae76c-1687-4365-8ea0-b3cebfb1a07f" />
 
-- a terminal CLI called `san`
-- a WebAssembly-powered landing page published to GitHub Pages
-
-The effect is the same core idea in both modes: moving text drifts across a layered sand bed, scratches the surface, kicks grains aside, and reacts to wind.
+`sanbox` is a project that renders a "sandbox"
 
 ## Demo
 
