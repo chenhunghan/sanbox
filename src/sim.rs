@@ -33,12 +33,14 @@ const SCRATCH_EXPOSED_RATE: f32 = 0.010;
 const SCRATCH_COVERED_RATE: f32 = 0.0035;
 const SCRATCH_TRAIL_RATE: f32 = 0.0055;
 const SCRATCH_SIDE_RATE: f32 = 0.0025;
-const WIND_SWAY_SPEED: f32 = 0.010;
-const WIND_GUST_SPEED: f32 = 0.004;
-const WIND_EDDY_SPEED: f32 = 0.006;
-const WIND_AIRBORNE_PUSH: f32 = 0.028;
-const WIND_AIRBORNE_LIFT: f32 = 0.006;
-const WIND_SURFACE_BIAS: f32 = 0.24;
+const IMPACT_KEEP_RATE: f32 = 0.010;
+const IMPACT_NEIGHBOR_RATE: f32 = 0.58;
+const IMPACT_SIDE_RATE: f32 = 0.34;
+const WIND_SWAY_SPEED: f32 = 0.014;
+const WIND_GUST_SPEED: f32 = 0.006;
+const WIND_EDDY_SPEED: f32 = 0.009;
+const WIND_AIRBORNE_PUSH: f32 = 0.046;
+const WIND_AIRBORNE_LIFT: f32 = 0.010;
 const BED_LAYER_1: Color = (168, 130, 92);
 const BED_LAYER_2: Color = (154, 118, 82);
 const BED_LAYER_3: Color = (138, 104, 72);
@@ -541,32 +543,42 @@ impl Sim {
         let yf = y as f32 / self.pixel_h.max(1) as f32;
         let t = self.frame as f32;
 
-        let sweep = (t * WIND_SWAY_SPEED + yf * 4.2 + xf * 1.1).sin();
-        let gust = (t * WIND_GUST_SPEED + xf * 5.6 - yf * 1.7).cos();
+        let swell = (t * WIND_SWAY_SPEED - yf * 9.2 + xf * 1.8).sin();
+        let crest = (t * (WIND_SWAY_SPEED * 0.58) - yf * 16.4 + xf * 3.8).sin();
+        let gust = (t * WIND_GUST_SPEED + xf * 5.4 - yf * 2.1).cos();
         let eddy = (t * WIND_EDDY_SPEED + xf * 3.1 + yf * 4.6).sin();
-        let pulse = 0.45 + (((t * 0.0026) + xf * 1.3).sin() * 0.5 + 0.5) * 0.55;
+        let pulse = 0.58 + (((t * 0.0032) + xf * 1.6).sin() * 0.5 + 0.5) * 0.82;
+        let band = (0.45 + swell * 0.30 + crest * 0.25).clamp(0.0, 1.0);
 
-        let horizontal = (sweep * 0.58 + gust * 0.42) * pulse;
-        let vertical = (eddy * 0.12 - sweep * 0.06 + gust * 0.03) * pulse;
+        let horizontal = (swell * 0.54 + crest * 0.32 + gust * 0.34) * pulse * (0.72 + band * 0.48);
+        let vertical = (eddy * 0.18 - swell * 0.09 + crest * 0.06 + gust * 0.04) * pulse;
         (horizontal, vertical)
     }
 
     fn wind_step(&mut self, wind_x: f32, wind_y: f32) -> (isize, isize) {
-        let dx_roll = self.rng.f32() + wind_x * WIND_SURFACE_BIAS;
-        let dy_roll = self.rng.f32() + wind_y * (WIND_SURFACE_BIAS * 0.65);
-
-        let mut dx = if dx_roll > 0.76 {
+        let strength = (wind_x.abs() * 0.85 + wind_y.abs() * 0.45).clamp(0.0, 1.0);
+        let primary_dx = if wind_x > 0.12 {
             1
-        } else if dx_roll < 0.24 {
+        } else if wind_x < -0.12 {
+            -1
+        } else {
+            0
+        };
+        let primary_dy = if wind_y > 0.28 {
+            1
+        } else if wind_y < -0.28 {
             -1
         } else {
             0
         };
 
-        let mut dy = if dy_roll > 0.88 {
-            1
-        } else if dy_roll < 0.12 {
-            -1
+        let mut dx = if self.rng.f32() < 0.34 + strength * 0.52 {
+            primary_dx
+        } else {
+            0
+        };
+        let mut dy = if self.rng.f32() < 0.16 + strength * 0.34 {
+            primary_dy
         } else {
             0
         };
@@ -577,7 +589,7 @@ impl Sim {
                 dx = if wind_x >= 0.0 { 1 } else { -1 };
             }
 
-            if self.rng.f32() < 0.22 {
+            if self.rng.f32() < 0.16 + strength * 0.18 {
                 dy = self.rng.i32(-1..=1) as isize;
             }
         }
@@ -699,6 +711,104 @@ impl Sim {
         }
     }
 
+    fn impact_basis(&self) -> (f32, f32, f32, f32, i32, i32, i32, i32) {
+        let speed = (self.tvx * self.tvx + self.tvy * self.tvy)
+            .sqrt()
+            .max(0.001);
+        let mx = self.tvx / speed;
+        let my = self.tvy / speed;
+        let tx = -my;
+        let ty = mx;
+
+        let front_ix = if mx > 0.25 {
+            1
+        } else if mx < -0.25 {
+            -1
+        } else {
+            0
+        };
+        let front_iy = if my > 0.25 {
+            1
+        } else if my < -0.25 {
+            -1
+        } else {
+            0
+        };
+        let side_ix = if tx > 0.25 {
+            1
+        } else if tx < -0.25 {
+            -1
+        } else {
+            0
+        };
+        let side_iy = if ty > 0.25 {
+            1
+        } else if ty < -0.25 {
+            -1
+        } else {
+            0
+        };
+
+        (mx, my, tx, ty, front_ix, front_iy, side_ix, side_iy)
+    }
+
+    fn lift_impact_grain(
+        &mut self,
+        sx: usize,
+        sy: usize,
+        center_x: f32,
+        center_y: f32,
+        force: f32,
+        mx: f32,
+        my: f32,
+        tx: f32,
+        ty: f32,
+    ) {
+        let idx = sy * self.width + sx;
+        let Some(color) = self.grid[idx].take() else {
+            return;
+        };
+
+        if self.rng.f32() < IMPACT_KEEP_RATE {
+            self.grid[idx] = Some(color);
+            return;
+        }
+
+        let half_w = (self.text_w.max(1) as f32 * 0.5).max(1.0);
+        let half_h = (self.text_h.max(1) as f32 * 0.5).max(1.0);
+        let rel_x = (sx as f32 - center_x) / half_w;
+        let rel_y = (sy as f32 - center_y) / half_h;
+        let leading = rel_x * mx + rel_y * my;
+        let lateral = rel_x * tx + rel_y * ty;
+        let radial_x = rel_x.clamp(-1.0, 1.0);
+        let radial_y = rel_y.clamp(-1.0, 1.0);
+        let (wind_x, wind_y) = self.wind_at(sx, sy);
+
+        let forward = force * (0.68 + self.rng.f32() * 0.48 + leading.max(0.0) * 0.34);
+        let peel = force * (lateral * (0.34 + self.rng.f32() * 0.30));
+        let radial = force * (0.08 + self.rng.f32() * 0.14);
+        let noise = force * (0.22 + self.rng.f32() * 0.26);
+
+        let vx = mx * forward
+            + tx * peel
+            + radial_x * radial
+            + wind_x * 0.18
+            + (self.rng.f32() - 0.5) * noise;
+        let vy = my * forward
+            + ty * peel
+            + radial_y * radial * 0.82
+            + wind_y * 0.14
+            + (self.rng.f32() - 0.5) * noise * 0.82;
+
+        self.airborne.push(Particle {
+            x: sx as f32,
+            y: sy as f32,
+            vx,
+            vy,
+            color,
+        });
+    }
+
     #[inline]
     fn is_text_pixel(&self, x: usize, y: usize) -> bool {
         let rx = x as i32 - self.tx as i32;
@@ -760,6 +870,9 @@ impl Sim {
 
         let tx_i = self.tx as i32;
         let ty_i = self.ty as i32;
+        let center_x = tx_i as f32 + self.text_w as f32 * 0.5;
+        let center_y = ty_i as f32 + self.text_h as f32 * 0.5;
+        let (mx, my, tx, ty, front_ix, front_iy, side_ix, side_iy) = self.impact_basis();
 
         for ly in 0..self.text_h as i32 {
             for lx in 0..self.text_w as i32 {
@@ -775,30 +888,55 @@ impl Sim {
 
                 let ux = gx as usize;
                 let uy = gy as usize;
-                let idx = uy * self.width + ux;
-                if let Some(color) = self.grid[idx].take() {
-                    if self.rng.f32() < 0.03 {
-                        self.grid[idx] = Some(color);
-                        continue;
-                    }
+                let rel_x = (ux as f32 - center_x) / (self.text_w.max(1) as f32 * 0.5).max(1.0);
+                let rel_y = (uy as f32 - center_y) / (self.text_h.max(1) as f32 * 0.5).max(1.0);
+                let leading = rel_x * mx + rel_y * my;
+                let lateral = rel_x * tx + rel_y * ty;
+                let spread = impact_scale(self.motion_factor);
 
-                    let edge_y = ly as f32 / self.text_h.max(1) as f32 - 0.5;
-                    let edge_x = lx as f32 / self.text_w.max(1) as f32 - 0.5;
-                    let spread = impact_scale(self.motion_factor);
-                    let push = 1.25 + self.rng.f32() * 0.55;
-                    let vx = self.tvx * push
-                        + edge_x * 0.75 * spread
-                        + (self.rng.f32() - 0.5) * 0.75 * spread;
-                    let vy = self.tvy * push
-                        + edge_y * 0.75 * spread
-                        + (self.rng.f32() - 0.5) * 0.75 * spread;
-                    self.airborne.push(Particle {
-                        x: gx as f32,
-                        y: gy as f32,
-                        vx,
-                        vy,
-                        color,
-                    });
+                self.lift_impact_grain(ux, uy, center_x, center_y, spread, mx, my, tx, ty);
+
+                if self.airborne.len() > MAX_AIRBORNE {
+                    return;
+                }
+
+                if self.rng.f32() < IMPACT_NEIGHBOR_RATE * (0.95 + leading.max(0.0) * 1.05) {
+                    let nx = gx + front_ix;
+                    let ny = gy + front_iy;
+                    if self.in_bounds(nx as isize, ny as isize) {
+                        self.lift_impact_grain(
+                            nx as usize,
+                            ny as usize,
+                            center_x,
+                            center_y,
+                            spread * 0.62,
+                            mx,
+                            my,
+                            tx,
+                            ty,
+                        );
+                    }
+                }
+
+                if (lateral.abs() > 0.08 || leading > -0.04)
+                    && self.rng.f32() < IMPACT_SIDE_RATE + lateral.abs() * 0.18
+                {
+                    let side_dir = if lateral >= 0.0 { 1 } else { -1 };
+                    let nx = gx + side_ix * side_dir;
+                    let ny = gy + side_iy * side_dir;
+                    if self.in_bounds(nx as isize, ny as isize) {
+                        self.lift_impact_grain(
+                            nx as usize,
+                            ny as usize,
+                            center_x,
+                            center_y,
+                            spread * 0.48,
+                            mx,
+                            my,
+                            tx,
+                            ty,
+                        );
+                    }
                 }
             }
         }
@@ -809,7 +947,7 @@ impl Sim {
         let airborne = std::mem::take(&mut self.airborne);
 
         for mut p in airborne {
-            let jitter = 0.06 * impact_scale(self.motion_factor);
+            let jitter = 0.045 * impact_scale(self.motion_factor);
             p.vx += (self.rng.f32() - 0.5) * jitter;
             p.vy += (self.rng.f32() - 0.5) * jitter;
             p.vx *= 0.94;
@@ -842,14 +980,14 @@ impl Sim {
             let speed_sq = p.vx * p.vx + p.vy * p.vy;
 
             if self.is_text_pixel(gx, gy) {
-                let bounce_kick = 0.85 * impact_scale(self.motion_factor);
+                let bounce_kick = 0.55 * impact_scale(self.motion_factor);
                 p.vx = self.tvx * 1.15 + (self.rng.f32() - 0.5) * bounce_kick;
                 p.vy = self.tvy * 1.15 + (self.rng.f32() - 0.5) * bounce_kick;
                 next.push(p);
                 continue;
             }
 
-            if speed_sq < 0.05 && self.try_deposit(gx, gy, p.color) {
+            if speed_sq < 0.09 && self.try_deposit(gx, gy, p.color) {
                 continue;
             }
 
@@ -875,8 +1013,10 @@ impl Sim {
 
         let total = self.width * self.pixel_h;
         let boost = if self.diffuse_boost_frames > 0 { 3 } else { 1 };
-        let samples = ((total / AMBIENT_DIFFUSE_DIVISOR) * boost)
-            .clamp(AMBIENT_DIFFUSE_MIN, AMBIENT_DIFFUSE_MAX * boost);
+        let gust_cycle = 0.82 + (((self.frame as f32 * 0.0048).sin() * 0.5 + 0.5) * 1.05);
+        let samples = (((total / AMBIENT_DIFFUSE_DIVISOR) as f32) * boost as f32 * gust_cycle)
+            .round() as usize;
+        let samples = samples.clamp(AMBIENT_DIFFUSE_MIN, AMBIENT_DIFFUSE_MAX * boost);
 
         for _ in 0..samples {
             let x = self.rng.usize(0..self.width);
@@ -891,8 +1031,17 @@ impl Sim {
                 continue;
             }
 
-            for _ in 0..3 {
-                let (wind_x, wind_y) = self.wind_at(x, y);
+            let (wind_x, wind_y) = self.wind_at(x, y);
+            let wave_strength = (wind_x.abs() * 0.85 + wind_y.abs() * 0.45).clamp(0.0, 1.0);
+            let attempts = if wave_strength > 0.78 {
+                5
+            } else if wave_strength > 0.48 {
+                4
+            } else {
+                3
+            };
+
+            for _ in 0..attempts {
                 let (dx, dy) = self.wind_step(wind_x, wind_y);
                 if dx == 0 && dy == 0 {
                     continue;
