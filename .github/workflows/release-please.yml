@@ -1,21 +1,39 @@
-name: Release CLI
+name: Release Please
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-please-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: rust
+
   build:
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -70,7 +88,7 @@ jobs:
           set -euo pipefail
           mkdir -p dist package
           cp "target/${{ matrix.target }}/release/${{ matrix.binary }}" "package/${{ matrix.binary }}"
-          tar -C package -czf "dist/san-${{ github.ref_name }}-${{ matrix.target }}.tar.gz" "${{ matrix.binary }}"
+          tar -C package -czf "dist/san-${{ needs.release-please.outputs.tag_name }}-${{ matrix.target }}.tar.gz" "${{ matrix.binary }}"
 
       - name: Package zip
         if: matrix.archive == 'zip'
@@ -78,7 +96,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force dist, package | Out-Null
           Copy-Item "target/${{ matrix.target }}/release/${{ matrix.binary }}" "package/${{ matrix.binary }}"
-          Compress-Archive -Path "package/${{ matrix.binary }}" -DestinationPath "dist/san-${{ github.ref_name }}-${{ matrix.target }}.zip" -Force
+          Compress-Archive -Path "package/${{ matrix.binary }}" -DestinationPath "dist/san-${{ needs.release-please.outputs.tag_name }}-${{ matrix.target }}.zip" -Force
 
       - name: Upload packaged CLI
         uses: actions/upload-artifact@v4
@@ -87,9 +105,12 @@ jobs:
           path: dist/*
 
   publish:
-    name: Publish GitHub Release
+    name: Upload release assets
     runs-on: ubuntu-latest
-    needs: build
+    needs:
+      - release-please
+      - build
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
 
     steps:
       - name: Download packaged CLIs
@@ -104,18 +125,12 @@ jobs:
         run: |
           set -euo pipefail
           cd dist
-          shasum -a 256 * > "san-${GITHUB_REF_NAME}-sha256.txt"
+          shasum -a 256 * > "san-${{ needs.release-please.outputs.tag_name }}-sha256.txt"
 
-      - name: Create or update GitHub Release
+      - name: Upload release assets
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            gh release upload "${GITHUB_REF_NAME}" dist/* --clobber
-          else
-            gh release create "${GITHUB_REF_NAME}" dist/* \
-              --title "${GITHUB_REF_NAME}" \
-              --generate-notes
-          fi
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" dist/* --clobber
