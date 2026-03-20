@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/chenhunghan/sanbox/compare/v0.1.0...v0.1.1) (2026-03-20)
+
+
+### Bug Fixes
+
+* use supported macOS Intel runner ([d44bbf6](https://github.com/chenhunghan/sanbox/commit/d44bbf601b9021fb587751ab471477fa13d36172))
+
 ## 0.1.0 (2026-03-20)
 
 
