@@ -133,4 +133,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gh release upload "${{ needs.release-please.outputs.tag_name }}" dist/* --clobber
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" dist/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --clobber
