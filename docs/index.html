@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Sandbox Surface</title>
+    <meta
+      name="description"
+      content="A sandbox by agents, for agents"
+    />
+    <meta name="color-scheme" content="light" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="Sandbox home">
+          <span class="brand-mark"></span>
+          <span class="brand-text">Sandbox</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <a href="#surface">Surface</a>
+          <a href="#behaviour">Behaviour</a>
+          <a href="https://github.com/chenhunghan/sanbox/releases" target="_blank" rel="noreferrer">Download</a>
+        </nav>
+
+        <div class="site-actions">
+          <a class="nav-link" href="https://github.com/chenhunghan/sanbox" target="_blank" rel="noreferrer">GitHub</a>
+          <a class="button button-primary" href="https://github.com/chenhunghan/sanbox" target="_blank" rel="noreferrer">
+            View source
+          </a>
+        </div>
+      </header>
+
+      <main id="top">
+        <section class="hero" id="surface">
+          <div class="hero-copy reveal">
+            <p class="eyebrow">By agents, for agents</p>
+            <h1 class="hero-title">
+              <span class="hero-line">A sandbox</span>
+              <span class="hero-line">by agents,</span>
+              <span class="hero-line">for agents,</span>
+              <span class="hero-line">to play in sand.</span>
+            </h1>
+            <p class="hero-text">
+              Sandbox turns the runtime idea into a tactile surface. It feels
+              like an agent workspace, exposes named operating profiles, and
+              renders every interaction as drifting grains, scratches, and
+              moving text across terminal and web.
+            </p>
+
+            <div class="hero-actions">
+              <a class="button button-primary" href="https://github.com/chenhunghan/sanbox" target="_blank" rel="noreferrer">
+                View GitHub
+              </a>
+              <a class="button button-secondary" href="https://github.com/chenhunghan/sanbox/releases" target="_blank" rel="noreferrer">
+                Download CLI
+              </a>
+            </div>
+
+            <div class="cli-hint reveal reveal-delay">
+              <p class="cli-label">Agent Launch</p>
+              <pre><code>san claude box</code></pre>
+            </div>
+
+            <dl class="hero-metrics">
+              <div>
+                <dt>By Agents</dt>
+                <dd>Terminal-native workflow</dd>
+              </div>
+              <div>
+                <dt>For Agents</dt>
+                <dd>Named operating profiles</dd>
+              </div>
+              <div>
+                <dt>In Sand</dt>
+                <dd>One Rust engine, two surfaces</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="hero-media reveal reveal-delay">
+            <div class="media-glow" aria-hidden="true"></div>
+            <div class="media-shell terminal-window">
+              <div class="media-toolbar">
+                <div class="toolbar-dots" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="toolbar-filler" aria-hidden="true"></div>
+              </div>
+
+              <div class="canvas-frame">
+                <canvas id="sand-canvas" aria-label="Animated sand surface"></canvas>
+                <div class="terminal-demo" id="terminal-demo" aria-hidden="true">
+                  <div class="terminal-demo__status">
+                    <span class="terminal-demo__host">agent@sandbox</span>
+                    <span class="terminal-demo__profile" id="terminal-demo-profile">codex</span>
+                  </div>
+                  <div class="terminal-demo__line">
+                    <span class="terminal-demo__prompt">$</span>
+                    <span class="terminal-demo__command" id="terminal-demo-command"></span>
+                    <span class="terminal-demo__cursor" aria-hidden="true"></span>
+                  </div>
+                  <div class="terminal-demo__log" id="terminal-demo-log"></div>
+                </div>
+
+                <div class="surface-controls" role="group" aria-label="Sandbox text presets">
+                  <button class="surface-button" type="button" data-surface-text="claude">
+                    claude
+                  </button>
+                  <button class="surface-button is-active" type="button" data-surface-text="codex" aria-pressed="true">
+                    codex
+                  </button>
+                  <button class="surface-button" type="button" data-surface-text="openclaw">
+                    openclaw
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="features" id="behaviour">
+          <div class="section-head reveal">
+            <p class="eyebrow">For Agents</p>
+            <h2>By agents in spirit. For agents in interface. Written in sand in every frame.</h2>
+          </div>
+
+          <div class="feature-list">
+            <article class="feature-card reveal">
+              <span class="feature-number">1</span>
+              <h3>Agent-shaped control</h3>
+              <p>
+                The surface stays spare and operator-focused, with a terminal
+                window, direct controls, and a presentation that feels closer
+                to agent tooling than a generic showcase.
+              </p>
+            </article>
+
+            <article class="feature-card reveal reveal-delay">
+              <span class="feature-number">2</span>
+              <h3>Profiles for agents</h3>
+              <p>
+                Claude, Codex, and OpenClaw behave like selectable runtime
+                profiles, giving each pass across the surface a distinct named
+                mode at the boundary.
+              </p>
+            </article>
+
+            <article class="feature-card reveal reveal-delay-2">
+              <span class="feature-number">3</span>
+              <h3>Written in sand</h3>
+              <p>
+                Wind, layered beds, and scratched trails are not decoration.
+                They are the medium of the interface, driven by the same Rust
+                engine across terminal and web.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="deploy" id="download">
+          <div class="deploy-copy reveal">
+            <p class="eyebrow">Download</p>
+            <h2>Get the CLI and run the sand surface locally.</h2>
+            <p>
+              Download the latest release from GitHub and run the CLI in your
+              terminal. The same Rust engine powers the local surface and the
+              web demo.
+            </p>
+          </div>
+
+          <div class="deploy-card reveal reveal-delay">
+            <div class="deploy-card-header">
+              <span>Release Page</span>
+              <span>cli</span>
+            </div>
+            <pre><code>github.com/chenhunghan/sanbox/releases
+
+download the latest binary
+run: san claude box
+switch profiles: claude / codex / openclaw</code></pre>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
