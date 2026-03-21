@@ -1,8 +1,8 @@
 # sanbox
 
-> A sandbox by agents, for agents, to play in sand.
+> A sandbox by agents, for agents.
 
-<img width="600" src="https://github.com/user-attachments/assets/3efae76c-1687-4365-8ea0-b3cebfb1a07f" />
+https://github.com/user-attachments/assets/35238607-b5a3-4bab-b834-ae428f0b70c0
 
 ## Live Demo
 
