@@ -41,10 +41,10 @@ Based on the public docs for the current local-agent sandbox landscape:
 
 | Solution | Container default | MicroVM default | Hardened runtime option | FS policy | Network policy | Process policy | Creds kept outside sandbox |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/architecture/) | [ ] | [x] | [x] | [~] | [x] | [ ] | [x] |
-| [NVIDIA OpenShell](https://github.com/NVIDIA/OpenShell) | [x] | [ ] | [ ] | [x] | [x] | [x] | [x] |
-| [Alibaba OpenSandbox](https://github.com/alibaba/OpenSandbox) | [x] | [ ] | [x] | [~] | [x] | [~] | [~] |
-| [kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) | [x] | [ ] | [x] | [~] | [~] | [~] | [ ] |
-| [AgentScope Runtime](https://runtime.agentscope.io/en/sandbox/sandbox.html) | [x] | [ ] | [x] | [~] | [~] | [ ] | [ ] |
+| [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/architecture/) | ❌ | ✅ | ✅ | ⚠️ | ✅ | ❌ | ✅ |
+| [NVIDIA OpenShell](https://github.com/NVIDIA/OpenShell) | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| [Alibaba OpenSandbox](https://github.com/alibaba/OpenSandbox) | ✅ | ❌ | ✅ | ⚠️ | ✅ | ⚠️ | ⚠️ |
+| [kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) | ✅ | ❌ | ✅ | ⚠️ | ⚠️ | ⚠️ | ❌ |
+| [AgentScope Runtime](https://runtime.agentscope.io/en/sandbox/sandbox.html) | ✅ | ❌ | ✅ | ⚠️ | ⚠️ | ❌ | ❌ |
 
-Legend: `[x]` yes, `[ ]` no, `[~]` optional or runtime-dependent
+Legend: `✅` yes, `❌` no, `⚠️` optional or runtime-dependent
