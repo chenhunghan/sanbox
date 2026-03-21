@@ -39,14 +39,14 @@ The workflow builds the wasm bundle into `docs/` and publishes that directory to
 Based on the public docs for the current local-agent sandbox landscape:
 
 
-| Solution | Container default | MicroVM default | Hardened runtime option | FS policy | Network policy | Process policy | Creds kept outside sandbox |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| **sanbox** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/architecture/) | ❌ | ✅ | ✅ | ⚠️ | ✅ | ❌ | ✅ |
-| [NVIDIA OpenShell](https://github.com/NVIDIA/OpenShell) | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| [Alibaba OpenSandbox](https://github.com/alibaba/OpenSandbox) | ✅ | ❌ | ✅ | ⚠️ | ✅ | ⚠️ | ⚠️ |
-| [kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) | ✅ | ❌ | ✅ | ⚠️ | ⚠️ | ⚠️ | ❌ |
-| [AgentScope Runtime](https://runtime.agentscope.io/en/sandbox/sandbox.html) | ✅ | ❌ | ✅ | ⚠️ | ⚠️ | ❌ | ❌ |
+| Solution | Art | Container default | MicroVM default | Hardened runtime option | FS policy | Network policy | Process policy | Creds kept outside sandbox |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **sanbox** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/architecture/) | ❌ | ❌ | ✅ | ✅ | ⚠️ | ✅ | ❌ | ✅ |
+| [NVIDIA OpenShell](https://github.com/NVIDIA/OpenShell) | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| [Alibaba OpenSandbox](https://github.com/alibaba/OpenSandbox) | ❌ | ✅ | ❌ | ✅ | ⚠️ | ✅ | ⚠️ | ⚠️ |
+| [kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) | ❌ | ✅ | ❌ | ✅ | ⚠️ | ⚠️ | ⚠️ | ❌ |
+| [AgentScope Runtime](https://runtime.agentscope.io/en/sandbox/sandbox.html) | ❌ | ✅ | ❌ | ✅ | ⚠️ | ⚠️ | ❌ | ❌ |
 
 Legend: `✅` yes, `❌` no, `⚠️` optional or runtime-dependent
 
