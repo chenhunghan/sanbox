@@ -41,6 +41,7 @@ Based on the public docs for the current local-agent sandbox landscape:
 
 | Solution | Container default | MicroVM default | Hardened runtime option | FS policy | Network policy | Process policy | Creds kept outside sandbox |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| **sanbox** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/architecture/) | ❌ | ✅ | ✅ | ⚠️ | ✅ | ❌ | ✅ |
 | [NVIDIA OpenShell](https://github.com/NVIDIA/OpenShell) | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
 | [Alibaba OpenSandbox](https://github.com/alibaba/OpenSandbox) | ✅ | ❌ | ✅ | ⚠️ | ✅ | ⚠️ | ⚠️ |
@@ -48,3 +49,5 @@ Based on the public docs for the current local-agent sandbox landscape:
 | [AgentScope Runtime](https://runtime.agentscope.io/en/sandbox/sandbox.html) | ✅ | ❌ | ✅ | ⚠️ | ⚠️ | ❌ | ❌ |
 
 Legend: `✅` yes, `❌` no, `⚠️` optional or runtime-dependent
+
+For `sanbox`, the row reflects implemented isolation and policy primitives. This project is a visual CLI/web animation, not a real execution sandbox.
