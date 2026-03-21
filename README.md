@@ -34,7 +34,7 @@ https://chenhunghan.github.io/sanbox/
 
 The workflow builds the wasm bundle into `docs/` and publishes that directory to GitHub Pages.
 
-## Comparision
+## Comparison
 
 Based on the public docs for the current local-agent sandbox landscape:
 
